@@ -69,7 +69,7 @@ public final class Geth {
     ///   - data: data to include in tx
     ///   - blockParameter:
     ///   - completionHandler:
-    public func call(from: String? = nil, to: String, gasLimit: Int64? = nil, gasPrice: Int64? = nil, value: String? = nil, data: String? = nil, blockParameter: BlockParameter = .latest, completionHandler: @escaping (Result<String>) -> Void) {
+    public func call(from: String? = nil, to: String, gasLimit: Int? = nil, gasPrice: Int? = nil, value: String? = nil, data: String? = nil, blockParameter: BlockParameter = .latest, completionHandler: @escaping (Result<String>) -> Void) {
         let request = JSONRPC.Call(
             from: from,
             to: to,
@@ -93,7 +93,7 @@ public final class Geth {
     ///   - value: value in wei
     ///   - data: data to include in tx
     ///   - completionHandler:
-    public func getEstimateGas(from: String? = nil, to: String, gasLimit: Int64? = nil, gasPrice: Int64? = nil, value: String? = nil, data: String? = nil, completionHandler: @escaping (Result<Wei>) -> Void) {
+    public func getEstimateGas(from: String? = nil, to: String, gasLimit: Int? = nil, gasPrice: Int? = nil, value: String? = nil, data: String? = nil, completionHandler: @escaping (Result<Wei>) -> Void) {
         let request = JSONRPC.GetEstimatGas(
             from: from,
             to: to,

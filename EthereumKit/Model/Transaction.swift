@@ -1,22 +1,22 @@
 public struct RawTransaction {
     public let value: Wei
     public let to: Address
-    public let gasPrice: Int64
-    public let gasLimit: Int64
+    public let gasPrice: Int
+    public let gasLimit: Int
     public let nonce: Int
     public let data: Data
 }
 
 extension RawTransaction {
-    public init(value: Wei, to: Address, gasLimit: Int64, gasPrice: Int64, nonce: Int, data: Data = Data()) {
+    public init(value: Wei, to: Address, gasLimit: Int, gasPrice: Int, nonce: Int, data: Data = Data()) {
         self.init(value: value, to: to, gasPrice: gasPrice, gasLimit: gasLimit, nonce: nonce, data: data)
     }
     
-    public init(wei: String, to: String, gasLimit: Int64, gasPrice: Int64, nonce: Int, data: Data = Data()) {
+    public init(wei: String, to: String, gasLimit: Int, gasPrice: Int, nonce: Int, data: Data = Data()) {
         self.init(value: Wei(wei)!, to: Address(string: to), gasPrice: gasPrice, gasLimit: gasLimit, nonce: nonce, data: data)
     }
     
-    public init(ether: String, to: String, gasLimit: Int64, gasPrice: Int64, nonce: Int, data: Data = Data()) {
+    public init(ether: String, to: String, gasLimit: Int, gasPrice: Int, nonce: Int, data: Data = Data()) {
         self.init(wei: Converter.toWei(ether: Ether(ether)!).description, to: to, gasLimit: gasLimit, gasPrice: gasPrice, nonce: nonce, data: data)
     }
 }
@@ -35,8 +35,8 @@ extension RawTransaction: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         value = try container.decode(Wei.self, forKey: .value)
         to = try container.decode(Address.self, forKey: .to)
-        gasLimit = try container.decode(Int64.self, forKey: .gasLimit)
-        gasPrice = try container.decode(Int64.self, forKey: .gasPrice)
+        gasLimit = try container.decode(Int.self, forKey: .gasLimit)
+        gasPrice = try container.decode(Int.self, forKey: .gasPrice)
         nonce = try container.decode(Int.self, forKey: .nonce)
         data = try container.decode(Data.self, forKey: .data)
     }
