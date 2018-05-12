@@ -1,28 +1,23 @@
 public struct RawTransaction {
     public let value: Wei
     public let to: Address
+    public let gasPrice: Int64
+    public let gasLimit: Int64
     public let nonce: Int
     public let data: Data
-    
-    public static func create(wei: String, address: String, nonce: Int, data: Data = Data()) -> RawTransaction {
-        return RawTransaction(wei: wei, address: address, nonce: nonce, data: data)
-    }
-    
-    public static func create(ether: String, address: String, nonce: Int, data: Data = Data()) -> RawTransaction {
-        return RawTransaction(ether: ether, address: address, nonce: nonce, data: data)
-    }
 }
 
 extension RawTransaction {
-    internal init(wei: String, address: String, nonce: Int, data: Data) {
-        self.value = Wei(wei)!
-        self.to = Address(string: address)
-        self.nonce = nonce
-        self.data = data
+    public init(value: Wei, to: Address, gasLimit: Int64, gasPrice: Int64, nonce: Int, data: Data = Data()) {
+        self.init(value: value, to: to, gasPrice: gasPrice, gasLimit: gasLimit, nonce: nonce, data: data)
     }
     
-    internal init(ether: String, address: String, nonce: Int, data: Data) {
-        self.init(wei: Converter.toWei(ether: Ether(ether)!).description, address: address, nonce: nonce, data: data)
+    public init(wei: String, to: String, gasLimit: Int64, gasPrice: Int64, nonce: Int, data: Data = Data()) {
+        self.init(value: Wei(wei)!, to: Address(string: to), gasPrice: gasPrice, gasLimit: gasLimit, nonce: nonce, data: data)
+    }
+    
+    public init(ether: String, to: String, gasLimit: Int64, gasPrice: Int64, nonce: Int, data: Data = Data()) {
+        self.init(wei: Converter.toWei(ether: Ether(ether)!).description, to: to, gasLimit: gasLimit, gasPrice: gasPrice, nonce: nonce, data: data)
     }
 }
 
@@ -30,54 +25,9 @@ extension RawTransaction: Codable {
     private enum CodingKeys: String, CodingKey {
         case value
         case to
-        case nonce
-        case data
-    }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        value = try container.decode(Wei.self, forKey: .value)
-        to = try container.decode(Address.self, forKey: .to)
-        nonce = try container.decode(Int.self, forKey: .nonce)
-        data = try container.decode(Data.self, forKey: .data)
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(value, forKey: .value)
-        try container.encode(to, forKey: .to)
-        try container.encode(nonce, forKey: .nonce)
-        try container.encode(data, forKey: .data)
-    }
-}
-
-public struct SignTransaction {
-    public let value: Wei
-    public let to: Address
-    public let nonce: Int
-    public let gasPrice: Int
-    public let gasLimit: Int
-    public let data: Data
-}
-
-extension SignTransaction {
-    public init(rawTransaction: RawTransaction, gasPrice: Int, gasLimit: Int) {
-        self.value = rawTransaction.value
-        self.to = rawTransaction.to
-        self.nonce = rawTransaction.nonce
-        self.gasPrice = gasPrice
-        self.gasLimit = gasLimit
-        self.data = rawTransaction.data
-    }
-}
-
-extension SignTransaction: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case value
-        case to
-        case nonce
         case gasPrice
         case gasLimit
+        case nonce
         case data
     }
     
@@ -85,9 +35,9 @@ extension SignTransaction: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         value = try container.decode(Wei.self, forKey: .value)
         to = try container.decode(Address.self, forKey: .to)
+        gasLimit = try container.decode(Int64.self, forKey: .gasLimit)
+        gasPrice = try container.decode(Int64.self, forKey: .gasPrice)
         nonce = try container.decode(Int.self, forKey: .nonce)
-        gasPrice = try container.decode(Int.self, forKey: .gasPrice)
-        gasLimit = try container.decode(Int.self, forKey: .gasLimit)
         data = try container.decode(Data.self, forKey: .data)
     }
     
@@ -95,9 +45,9 @@ extension SignTransaction: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(value, forKey: .value)
         try container.encode(to, forKey: .to)
-        try container.encode(nonce, forKey: .nonce)
-        try container.encode(gasPrice, forKey: .gasPrice)
         try container.encode(gasLimit, forKey: .gasLimit)
+        try container.encode(gasPrice, forKey: .gasPrice)
+        try container.encode(nonce, forKey: .nonce)
         try container.encode(data, forKey: .data)
     }
 }

@@ -4,241 +4,106 @@ import CryptoSwift
 
 class TransactionSigningTests: XCTestCase {
     
+    let mainWallet = Wallet(network: .main, privateKey: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
+    let testWallet = Wallet(network: .ropsten, privateKey: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
+    
     func testTransactionSigning() {
-        let signTransaction = SignTransaction(
+        let rawTransaction = RawTransaction(
             value: Wei("1000000000000000000")!,
             to: Address(string: "0x91c79f31De5208fadCbF83f0a7B0A9b6d8aBA90F"),
-            nonce: 5,
-            gasPrice: 99000000000,
             gasLimit: 21000,
-            data: Data()
+            gasPrice: 99000000000,
+            nonce: 5
         )
         
-        let signer = EIP155Signer(chainID: 3)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
+        let hash = try! testWallet.sign(rawTransaction: rawTransaction)
         
         XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86c0585170cdc1e008252089491c79f31de5208fadcbf83f0a7b0a9b6d8aba90f880de0b6b3a76400008029a076da637d6a2fa3197c0a1b7c9bc2a4326c9a1dbe94c4eb8449bf59919f89b762a00887bcdd883f2cc2c892e55665419fad6522d4e7e1f7c226282078de98f4069c"
+            hash, "0xf86c0585170cdc1e008252089491c79f31de5208fadcbf83f0a7b0a9b6d8aba90f880de0b6b3a76400008029a076da637d6a2fa3197c0a1b7c9bc2a4326c9a1dbe94c4eb8449bf59919f89b762a00887bcdd883f2cc2c892e55665419fad6522d4e7e1f7c226282078de98f4069c"
         )
     }
     
     func testTransactionSigning2() {
-        let signTransaction = SignTransaction(
+        let rawTransaction = RawTransaction(
             value: Wei("100000000000000000")!,
             to: Address(string: "0x3B958949EfCc8362Dd05179cCE8eB5e16BefeBdA"),
-            nonce: 5,
-            gasPrice: 99000000000,
             gasLimit: 21000,
-            data: Data()
+            gasPrice: 99000000000,
+            nonce: 5
         )
         
-        let signer = EIP155Signer(chainID: 3)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
+        let hash = try! testWallet.sign(rawTransaction: rawTransaction)
         
         XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86c0585170cdc1e00825208943b958949efcc8362dd05179cce8eb5e16befebda88016345785d8a00008029a022ab35848cce6ddf0ef76ea6ab25cebe449d822073492c6e2b90a2707bd061d0a0414e6f152f66a62158a59a9ffe095bd1beacf0d2510b9204aec8a8cacbcbdf31"
+            hash, "0xf86c0585170cdc1e00825208943b958949efcc8362dd05179cce8eb5e16befebda88016345785d8a00008029a022ab35848cce6ddf0ef76ea6ab25cebe449d822073492c6e2b90a2707bd061d0a0414e6f152f66a62158a59a9ffe095bd1beacf0d2510b9204aec8a8cacbcbdf31"
         )
     }
     
     func testTransactionSigning3() {
-        let signTransaction = SignTransaction(
+        let rawTransaction = RawTransaction(
             value: Wei("500000000000000000")!,
             to: Address(string: "0xfc9d3987f7fcd9181393084a94814385b28cEf81"),
-            nonce: 5,
-            gasPrice: 99000000000,
             gasLimit: 200000,
-            data: Data()
+            gasPrice: 99000000000,
+            nonce: 5
         )
         
-        let signer = EIP155Signer(chainID: 3)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
+        let hash = try! testWallet.sign(rawTransaction: rawTransaction)
         
         XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86d0585170cdc1e0083030d4094fc9d3987f7fcd9181393084a94814385b28cef818806f05b59d3b200008029a096479bbc675f9ae3bdc23f6fa22adf5bc009c1661b6336bdeaa2959dce6d55dba0302981091abc6dc4736676b93c24fde68d11bad45741a2d8c5bfdfb633039863"
+            hash, "0xf86d0585170cdc1e0083030d4094fc9d3987f7fcd9181393084a94814385b28cef818806f05b59d3b200008029a096479bbc675f9ae3bdc23f6fa22adf5bc009c1661b6336bdeaa2959dce6d55dba0302981091abc6dc4736676b93c24fde68d11bad45741a2d8c5bfdfb633039863"
         )
     }
     
     func testTransactionSigning4() {
-        let signTransaction = SignTransaction(
+        let rawTransaction = RawTransaction(
             value: Wei("1000000000000000000")!,
             to: Address(string: "0x91c79f31De5208fadCbF83f0a7B0A9b6d8aBA90F"),
-            nonce: 0,
-            gasPrice: 99000000000,
             gasLimit: 21000,
-            data: Data()
+            gasPrice: 99000000000,
+            nonce: 0
         )
         
-        let signer = EIP155Signer(chainID: 1)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
+        let hash = try! mainWallet.sign(rawTransaction: rawTransaction)
         
         XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86c8085170cdc1e008252089491c79f31de5208fadcbf83f0a7b0a9b6d8aba90f880de0b6b3a76400008025a0f62b35ed65db13b02ccab29eeea2d29990a690a8620f8bee56b765c5357c82b8a05c266f2d429c87f8c903f7089870aa169638518c5c3a56ade8ce66ffcb5c3991"
+            hash, "0xf86c8085170cdc1e008252089491c79f31de5208fadcbf83f0a7b0a9b6d8aba90f880de0b6b3a76400008025a0f62b35ed65db13b02ccab29eeea2d29990a690a8620f8bee56b765c5357c82b8a05c266f2d429c87f8c903f7089870aa169638518c5c3a56ade8ce66ffcb5c3991"
         )
     }
     
     func testTransactionSigning5() {
-        let signTransaction = SignTransaction(
+        let rawTransaction = RawTransaction(
             value: Wei("1000000000000000000")!,
             to: Address(string: "0x3B958949EfCc8362Dd05179cCE8eB5e16BefeBdA"),
-            nonce: 0,
-            gasPrice: 99000000000,
             gasLimit: 21000,
-            data: Data()
+            gasPrice: 99000000000,
+            nonce: 0
         )
         
-        let signer = EIP155Signer(chainID: 1)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
+        let hash = try! mainWallet.sign(rawTransaction: rawTransaction)
         
         XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86c8085170cdc1e00825208943b958949efcc8362dd05179cce8eb5e16befebda880de0b6b3a76400008025a0134a7e77c95c5839bd931788f1b7a3ff15567d9a79ef0b00cfe4baedf33c60d8a00123a678f76e288a0180ef3248c90608365bf95d20d1a16b9b3d23edbe420408"
+            hash, "0xf86c8085170cdc1e00825208943b958949efcc8362dd05179cce8eb5e16befebda880de0b6b3a76400008025a0134a7e77c95c5839bd931788f1b7a3ff15567d9a79ef0b00cfe4baedf33c60d8a00123a678f76e288a0180ef3248c90608365bf95d20d1a16b9b3d23edbe420408"
         )
     }
     
     func testTransactionSigning6() {
-        let signTransaction = SignTransaction(
+        let rawTransaction = RawTransaction(
             value: Wei("5000000000000000000")!,
             to: Address(string: "0xfc9d3987f7fcd9181393084a94814385b28cEf81"),
-            nonce: 0,
-            gasPrice: 99000000000,
             gasLimit: 200000,
-            data: Data()
-        )
-        
-        let signer = EIP155Signer(chainID: 1)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "db173e58671248b48d2494b63a99008be473268581ca1eb78ed0b92e03b13bbc")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
-        
-        XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86d8085170cdc1e0083030d4094fc9d3987f7fcd9181393084a94814385b28cef81884563918244f400008025a07f47866c109ce1fbc0b4c9d4c5825bcd9be13903a082256d70c8cf6c05a59bfca045f6b0407996511b30f72fbb567e0b0dbaa367b9b920f73ade435f8e0e2776b6"
-        )
-    }
-    
-    func testTransactionSigning7() {
-        let signTransaction = SignTransaction(
-            value: Wei("1000000000000000")!,
-            to: Address(string: "0x88b44BC83add758A3642130619D61682282850Df"),
-            nonce: 0,
             gasPrice: 99000000000,
-            gasLimit: 21000,
-            data: Data()
+            nonce: 0
         )
         
-        let signer = EIP155Signer(chainID: 3)
-        let signiture = try! Crypto.sign(
-            try! signer.hash(signTransaction: signTransaction),
-            privateKey: Data(hex: "0ac03c260512582a94295185cfa899e0cb8067a89a61b7b5435ec524c088203c")
-        )
-        
-        let (r, s, v) = signer.calculateRSV(signiture: signiture)
-        
-        let data = try! RLP.encode([
-            signTransaction.nonce,
-            signTransaction.gasPrice,
-            signTransaction.gasLimit,
-            signTransaction.to.data,
-            signTransaction.value,
-            signTransaction.data,
-            v, r, s
-        ])
+        let hash = try! mainWallet.sign(rawTransaction: rawTransaction)
         
         XCTAssertEqual(
-            data.toHexString().addHexPrefix(), "0xf86b8085170cdc1e008252089488b44bc83add758a3642130619d61682282850df87038d7ea4c680008029a01edbb41d5936c75314cd75d795e2c79ef8882eb6daa041f22a894f84dec7a97fa020569fc39ffa956592f40020b2afb710ba8dabebee4de32fb7dce22a1209b90d"
+            hash, "0xf86d8085170cdc1e0083030d4094fc9d3987f7fcd9181393084a94814385b28cef81884563918244f400008025a07f47866c109ce1fbc0b4c9d4c5825bcd9be13903a082256d70c8cf6c05a59bfca045f6b0407996511b30f72fbb567e0b0dbaa367b9b920f73ade435f8e0e2776b6"
         )
     }
     
     func testTransactionSigningWithWallet() {
-        Gas.setGasPirce(.custom(GWei: 99))
-        Gas.setGasLimit(.custom(21000))
-        
         let mnemonic = Mnemonic.create(entropy: Data(hex: "000102030405060708090a0b0c0d0e0f"))
         let seed = Mnemonic.createSeed(mnemonic: mnemonic)
         let wallet = try! Wallet(seed: seed, network: .ropsten)
@@ -247,9 +112,10 @@ class TransactionSigningTests: XCTestCase {
         
         let rawTransaction = RawTransaction(
             wei: "1000000000000000",
-            address: "0x88b44BC83add758A3642130619D61682282850Df",
-            nonce: 2,
-            data: Data()
+            to: "0x88b44BC83add758A3642130619D61682282850Df",
+            gasLimit: 21000,
+            gasPrice: 99,
+            nonce: 2
         )
         
         let tx = try! wallet.sign(rawTransaction: rawTransaction)
@@ -260,9 +126,6 @@ class TransactionSigningTests: XCTestCase {
     }
     
     func testTransactionSigningWithWallet1() {
-        Gas.setGasPirce(.custom(GWei: 1))
-        Gas.setGasLimit(.custom(21000))
-        
         let mnemonic = Mnemonic.create(entropy: Data(hex: "000102030405060708090a0b0c0d0e0f"))
         let seed = Mnemonic.createSeed(mnemonic: mnemonic)
         let wallet = try! Wallet(seed: seed, network: .ropsten)
@@ -271,9 +134,10 @@ class TransactionSigningTests: XCTestCase {
         
         let rawTransaction = RawTransaction(
             wei: "1000000000000000",
-            address: "0x88b44BC83add758A3642130619D61682282850Df",
-            nonce: 2,
-            data: Data()
+            to: "0x88b44BC83add758A3642130619D61682282850Df",
+            gasLimit: 21000,
+            gasPrice: 1,
+            nonce: 2
         )
         
         let tx = try! wallet.sign(rawTransaction: rawTransaction)
@@ -284,9 +148,6 @@ class TransactionSigningTests: XCTestCase {
     }
     
     func testTransactionSigningWithWallet2() {
-        Gas.setGasPirce(.custom(GWei: 10))
-        Gas.setGasLimit(.custom(21000))
-        
         let mnemonic = Mnemonic.create(entropy: Data(hex: "000102030405060708090a0b0c0d0e0f"))
         let seed = Mnemonic.createSeed(mnemonic: mnemonic)
         let wallet = try! Wallet(seed: seed, network: .ropsten)
@@ -295,9 +156,10 @@ class TransactionSigningTests: XCTestCase {
         
         let rawTransaction = RawTransaction(
             wei: "1000000000000000",
-            address: "0x88b44BC83add758A3642130619D61682282850Df",
-            nonce: 2,
-            data: Data()
+            to: "0x88b44BC83add758A3642130619D61682282850Df",
+            gasLimit: 21000,
+            gasPrice: 10,
+            nonce: 2
         )
         
         let tx = try! wallet.sign(rawTransaction: rawTransaction)
@@ -308,18 +170,16 @@ class TransactionSigningTests: XCTestCase {
     }
     
     func testTransactionSigningWithWallet3() {
-        Gas.setGasPirce(.normal)
-        Gas.setGasLimit(.normal)
-        
         let mnemonic = Mnemonic.create(entropy: Data(hex: "000102030405060708090a0b0c0d0e0f"))
         let seed = Mnemonic.createSeed(mnemonic: mnemonic)
         let wallet = try! Wallet(seed: seed, network: .ropsten)
         
         let rawTransaction = RawTransaction(
             wei: "100000000000000000",
-            address: "0x88b44BC83add758A3642130619D61682282850Df",
-            nonce: 2,
-            data: Data()
+            to: "0x88b44BC83add758A3642130619D61682282850Df",
+            gasLimit: 21000,
+            gasPrice: 41,
+            nonce: 2
         )
         
         let tx = try! wallet.sign(rawTransaction: rawTransaction)
@@ -330,18 +190,16 @@ class TransactionSigningTests: XCTestCase {
     }
     
     func testTransactionSigningWithWallet4() {
-        Gas.setGasPirce(.normal)
-        Gas.setGasLimit(.normal)
-        
         let mnemonic = Mnemonic.create(entropy: Data(hex: "000102030405060708090a0b0c0d0e0f"))
         let seed = Mnemonic.createSeed(mnemonic: mnemonic)
         let wallet = try! Wallet(seed: seed, network: .ropsten)
         
         let rawTransaction = RawTransaction(
             wei: "1000000000000000000",
-            address: "0x2F9eE3EdE488e3b7702Be866e2DC80A2a962f8a6",
-            nonce: 2,
-            data: Data()
+            to: "0x2F9eE3EdE488e3b7702Be866e2DC80A2a962f8a6",
+            gasLimit: 21000,
+            gasPrice: 41,
+            nonce: 2
         )
         
         let tx = try! wallet.sign(rawTransaction: rawTransaction)

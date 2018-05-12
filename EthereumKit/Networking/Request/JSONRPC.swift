@@ -84,9 +84,9 @@ public final class JSONRPC {
         
         public let from: String?
         public let to: String
-        public let gas: Int?
-        public let gasPrice: Int?
-        public let value: Int?
+        public let gasLimit: Int64?
+        public let gasPrice: Int64?
+        public let value: String?
         public let data: String?
         public let blockParameter: BlockParameter
         
@@ -103,12 +103,12 @@ public final class JSONRPC {
             
             txParams["to"] = to
             
-            if let gas = gas {
-                txParams["gas"] = gas
+            if let gasLimit = gasLimit {
+                txParams["gas"] = NSNumber(value: gasLimit)
             }
             
             if let gasPrice = gasPrice {
-                txParams["gasPrice"] = gasPrice
+                txParams["gasPrice"] = NSNumber(value: gasPrice)
             }
             
             if let value = value {
@@ -135,9 +135,9 @@ public final class JSONRPC {
         
         public let from: String?
         public let to: String
-        public let gas: Int?
-        public let gasPrice: Int?
-        public let value: Int?
+        public let gasLimit: Int64?
+        public let gasPrice: Int64?
+        public let value: String?
         public let data: String?
         
         public var method: String {
@@ -153,12 +153,12 @@ public final class JSONRPC {
             
             txParams["to"] = to
             
-            if let gas = gas {
-                txParams["gas"] = gas
+            if let gasLimit = gasLimit {
+                txParams["gas"] = NSNumber(value: gasLimit)
             }
             
             if let gasPrice = gasPrice {
-                txParams["gasPrice"] = gasPrice
+                txParams["gasPrice"] = NSNumber(value: gasPrice)
             }
             
             if let value = value {
