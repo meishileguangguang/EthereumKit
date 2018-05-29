@@ -1,8 +1,16 @@
 public final class HDWallet {
     
-    private let masterPrivateKey: HDPrivateKey
-    private let network: Network
-    
+	private var masterPrivateKey: HDPrivateKey
+	public var network = Network.ropsten {
+		willSet{
+			self.masterPrivateKey.network = newValue
+		}
+	}
+	
+	public init(seed: Data) {
+		self.masterPrivateKey = HDPrivateKey(seed: seed)
+	}
+	
     public init(seed: Data, network: Network) {
         self.masterPrivateKey = HDPrivateKey(seed: seed, network: network)
         self.network = network
