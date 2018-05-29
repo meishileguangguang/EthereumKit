@@ -23,9 +23,10 @@ public struct Configuration {
     /// reprensets an etherscan url based on which network to use
     public var etherscanURL: URL {
         switch network {
-        case .main:
+        case .eth:
             return URL(string: "https://api.etherscan.io")!
-            
+		case .btc:
+			return URL(string: "https://api.etherscan.io")! //瞎几把写的
         case .ropsten:
             return URL(string: "https://ropsten.etherscan.io")!
             
