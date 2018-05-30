@@ -7,8 +7,9 @@ public final class HDWallet {
 		}
 	}
 	
-	public init(password: String) {
-		self.masterPrivateKey = HDPrivateKey(password: password)
+	public init?(password: String) {
+		guard let masterPrivateKey = HDPrivateKey(password: password) else { return nil }
+		self.masterPrivateKey = masterPrivateKey
 	}
 	
 	public init(seed: Data) {

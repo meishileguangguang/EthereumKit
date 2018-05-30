@@ -9,12 +9,26 @@ public struct HDPrivateKey {
     private let childIndex: UInt32
 	public var network = Network.ropsten
 	
-	public init(password: String) {
+	public init?(password: String) {
 		let userDefauts = UserDefaults.standard
+		
+		
+		
+		let salt = "Ut3Opm78U76VbwoP4Vx6UdfN234Esaz9"
+		let pbkdf2Password = try! PKCS5.PBKDF2(password: password.bytes, salt: salt.bytes,
+									   keyLength: 16).calculate()
+		
+		let readPbkdf2Password = userDefauts.string(forKey: "pbkdf2Password")
+
+		if pbkdf2Password.toHexString() != readPbkdf2Password {
+			
+			return nil
+		}
+		
 		let hdPrivateKeyRaw = userDefauts.data(forKey: "HDPrivateKeyRaw")
-		self.raw = HDPrivateKey.Decode_AES(dataToDecode: hdPrivateKeyRaw!, key: password)
+		self.raw = HDPrivateKey.Decode_AES(dataToDecode: hdPrivateKeyRaw!, key: pbkdf2Password)
 		let hdPrivateKeyChainCode = userDefauts.data(forKey: "HDPrivateKeyChainCode")
-		self.chainCode = HDPrivateKey.Decode_AES(dataToDecode: hdPrivateKeyChainCode!, key: password)
+		self.chainCode = HDPrivateKey.Decode_AES(dataToDecode: hdPrivateKeyChainCode!, key: pbkdf2Password)
 		self.depth = 0
 		self.fingerprint = 0
 		self.childIndex = 0
@@ -49,11 +63,17 @@ public struct HDPrivateKey {
     }
 	
 	public func save(password: String) {
-		let userDefauts = UserDefaults.standard
 		
-		let hdPrivateKeyRaw = endcode_AES(dataToEncode: raw, key: password)
+		let salt = "Ut3Opm78U76VbwoP4Vx6UdfN234Esaz9"
+		let pbkdf2Password = try! PKCS5.PBKDF2(password: password.bytes, salt: salt.bytes,
+									   keyLength: 16).calculate()
+		
+		let userDefauts = UserDefaults.standard
+		userDefauts.setValue(pbkdf2Password.toHexString(), forKey: "pbkdf2Password")
+
+		let hdPrivateKeyRaw = endcode_AES(dataToEncode: raw, key: pbkdf2Password)
 		userDefauts.set(hdPrivateKeyRaw, forKey: "HDPrivateKeyRaw")
-		let hdPrivateKeyChainCode = endcode_AES(dataToEncode: chainCode, key: password)
+		let hdPrivateKeyChainCode = endcode_AES(dataToEncode: chainCode, key: pbkdf2Password)
 		userDefauts.set(hdPrivateKeyChainCode, forKey: "HDPrivateKeyChainCode")
 	}
     
@@ -109,15 +129,10 @@ public struct HDPrivateKey {
 
 extension HDPrivateKey {
 	
-	private func endcode_AES(dataToEncode: Data, key:String) -> Data {
-
-		let salt = "Ut3Opm78U76VbwoP4Vx6UdfN234Esaz9"
-		let pbkdf2 = try! PKCS5.PBKDF2(password: key.bytes, salt: salt.bytes,
-									   keyLength: 16).calculate()
-		
+	private func endcode_AES(dataToEncode: Data, key: [UInt8]) -> Data {
 		var result: [UInt8] = []
 		do {
-			let aes = try AES(key: Padding.zeroPadding.add(to: pbkdf2, blockSize: AES.blockSize), blockMode: .ECB)
+			let aes = try AES(key: Padding.zeroPadding.add(to: key, blockSize: AES.blockSize), blockMode: .ECB)
 			result = try aes.encrypt(dataToEncode.bytes)
 		} catch { }
 		
@@ -127,15 +142,11 @@ extension HDPrivateKey {
 	}
 	
 	//  MARK:  AES-128解密
-	private static func Decode_AES(dataToDecode: Data, key:String) -> Data {
-		
-		let salt = "Ut3Opm78U76VbwoP4Vx6UdfN234Esaz9"
-		let pbkdf2 = try! PKCS5.PBKDF2(password: key.bytes, salt: salt.bytes,
-									   keyLength: 16).calculate()
+	private static func Decode_AES(dataToDecode: Data, key: [UInt8]) -> Data {
 		// decode AES
 		var decrypted: [UInt8] = []
 		do {
-			let aes = try AES(key: Padding.zeroPadding.add(to: pbkdf2, blockSize: AES.blockSize), blockMode: .ECB)
+			let aes = try AES(key: Padding.zeroPadding.add(to: key, blockSize: AES.blockSize), blockMode: .ECB)
 
 			decrypted = try aes.decrypt(dataToDecode.bytes)
 		} catch {

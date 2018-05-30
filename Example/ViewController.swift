@@ -114,13 +114,17 @@ extension ViewController {
 	}
 
 	func getHDWallet() {
-		let password = "123456"
+		let password = "1234222256"
 
-		let wallet = HDWallet(password: password)
+		if let wallet = HDWallet(password: password) {
+			let address = try! wallet.generateAddress(at: 0)
+			print("getHDWallet create address:" + address)
+		}else{
+			print("密码错误!!!")
+		}
+
 		
-		let address = try! wallet.generateAddress(at: 0)
 		
-		print("getHDWallet create address:" + address)
 	}
 
 }
