@@ -1,4 +1,5 @@
 import CryptoEthereumSwift
+import CryptoSwift
 
 public struct HDPrivateKey {
     public let raw: Data
@@ -7,6 +8,17 @@ public struct HDPrivateKey {
     private let fingerprint: UInt32
     private let childIndex: UInt32
 	public var network = Network.ropsten
+	
+	public init(password: String) {
+		let userDefauts = UserDefaults.standard
+		let hdPrivateKeyRaw = userDefauts.data(forKey: "HDPrivateKeyRaw")
+		self.raw = HDPrivateKey.Decode_AES(dataToDecode: hdPrivateKeyRaw!, key: password)
+		let hdPrivateKeyChainCode = userDefauts.data(forKey: "HDPrivateKeyChainCode")
+		self.chainCode = HDPrivateKey.Decode_AES(dataToDecode: hdPrivateKeyChainCode!, key: password)
+		self.depth = 0
+		self.fingerprint = 0
+		self.childIndex = 0
+	}
 	
 	public init(seed: Data) {
 		let output = Crypto.HMACSHA512(key: "Bitcoin seed".data(using: .ascii)!, data: seed)
@@ -35,6 +47,15 @@ public struct HDPrivateKey {
         self.childIndex = index
         self.network = network
     }
+	
+	public func save(password: String) {
+		let userDefauts = UserDefaults.standard
+		
+		let hdPrivateKeyRaw = endcode_AES(dataToEncode: raw, key: password)
+		userDefauts.set(hdPrivateKeyRaw, forKey: "HDPrivateKeyRaw")
+		let hdPrivateKeyChainCode = endcode_AES(dataToEncode: chainCode, key: password)
+		userDefauts.set(hdPrivateKeyChainCode, forKey: "HDPrivateKeyChainCode")
+	}
     
     public func privateKey() -> PrivateKey {
         return PrivateKey(raw: Data(hex: "0x") + raw)
@@ -84,4 +105,45 @@ public struct HDPrivateKey {
             network: network
         )
     }
+}
+
+extension HDPrivateKey {
+	
+	private func endcode_AES(dataToEncode: Data, key:String) -> Data {
+
+		let salt = "Ut3Opm78U76VbwoP4Vx6UdfN234Esaz9"
+		let pbkdf2 = try! PKCS5.PBKDF2(password: key.bytes, salt: salt.bytes,
+									   keyLength: 16).calculate()
+		
+		var result: [UInt8] = []
+		do {
+			let aes = try AES(key: Padding.zeroPadding.add(to: pbkdf2, blockSize: AES.blockSize), blockMode: .ECB)
+			result = try aes.encrypt(dataToEncode.bytes)
+		} catch { }
+		
+		let data = Data(bytes: result)
+		
+		return data
+	}
+	
+	//  MARK:  AES-128解密
+	private static func Decode_AES(dataToDecode: Data, key:String) -> Data {
+		
+		let salt = "Ut3Opm78U76VbwoP4Vx6UdfN234Esaz9"
+		let pbkdf2 = try! PKCS5.PBKDF2(password: key.bytes, salt: salt.bytes,
+									   keyLength: 16).calculate()
+		// decode AES
+		var decrypted: [UInt8] = []
+		do {
+			let aes = try AES(key: Padding.zeroPadding.add(to: pbkdf2, blockSize: AES.blockSize), blockMode: .ECB)
+
+			decrypted = try aes.decrypt(dataToDecode.bytes)
+		} catch {
+			
+		}
+		// byte 转换成NSData
+		let data = Data(decrypted)
+		
+		return data
+	}
 }

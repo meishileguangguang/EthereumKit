@@ -7,6 +7,10 @@ public final class HDWallet {
 		}
 	}
 	
+	public init(password: String) {
+		self.masterPrivateKey = HDPrivateKey(password: password)
+	}
+	
 	public init(seed: Data) {
 		self.masterPrivateKey = HDPrivateKey(seed: seed)
 	}
@@ -17,6 +21,9 @@ public final class HDWallet {
     }
     
     // MARK: - Public Methods
+	public func saveMasterPrivateKey(password: String) {
+		self.masterPrivateKey.save(password: password)
+	}
 
     public func generatePrivateKey(at index: UInt32) throws -> PrivateKey {
         return try privateKey(change: .external).derived(at: index).privateKey()
